@@ -169,6 +169,8 @@ ADD https://infinity-artifacts.s3.amazonaws.com/statsd-jenkins/metrics-graphite.
 # disable first-run wizard
 RUN echo 2.0 > /usr/share/jenkins/ref/jenkins.install.UpgradeWizard.state
 
+ENTRYPOINT []
+
 CMD export LD_LIBRARY_PATH=/libmesos-bundle/lib:/libmesos-bundle/lib/mesos:$LD_LIBRARY_PATH \
   && export JENKINS_SLAVE_AGENT_PORT=$PORT_AGENT \
   && export MESOS_NATIVE_JAVA_LIBRARY=$(ls /libmesos-bundle/lib/libmesos-*.so)   \
