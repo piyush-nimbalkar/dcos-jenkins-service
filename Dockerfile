@@ -41,7 +41,9 @@ RUN echo 'networkaddress.cache.ttl=60' >> ${JAVA_HOME}/jre/lib/security/java.sec
 COPY scripts/bootstrap.py /usr/local/jenkins/bin/bootstrap.py
 COPY scripts/export-libssl.sh /usr/local/jenkins/bin/export-libssl.sh
 COPY scripts/dcos-account.sh /usr/local/jenkins/bin/dcos-account.sh
-RUN mkdir -p "$JENKINS_HOME" "${JENKINS_FOLDER}/war"
+COPY scripts/run.sh /usr/local/jenkins/bin/run.sh
+RUN chmod +x /usr/local/jenkins/bin/*.sh    \
+    && mkdir -p "$JENKINS_HOME" "${JENKINS_FOLDER}/war"
 
 # nginx setup
 RUN mkdir -p /var/log/nginx/jenkins
@@ -171,24 +173,4 @@ RUN echo 2.0 > /usr/share/jenkins/ref/jenkins.install.UpgradeWizard.state
 
 ENTRYPOINT []
 
-CMD export LD_LIBRARY_PATH=/libmesos-bundle/lib:/libmesos-bundle/lib/mesos:$LD_LIBRARY_PATH \
-  && export JENKINS_SLAVE_AGENT_PORT=$PORT_AGENT \
-  && export MESOS_NATIVE_JAVA_LIBRARY=$(ls /libmesos-bundle/lib/libmesos-*.so)   \
-  && . /usr/local/jenkins/bin/export-libssl.sh       \
-  && /usr/local/jenkins/bin/bootstrap.py && nginx    \
-  && . /usr/local/jenkins/bin/dcos-account.sh        \
-  && java ${JVM_OPTS}                                \
-     -Dhudson.model.DirectoryBrowserSupport.CSP="${JENKINS_CSP_OPTS}" \
-     -Dhudson.udp=-1                                 \
-     -Djava.awt.headless=true                        \
-     -Dhudson.DNSMultiCast.disabled=true             \
-     -Djenkins.install.runSetupWizard=false          \
-     -Djavamelody.statsd-address="${STATSD_UDP_HOST}:${STATSD_UDP_PORT}"  \
-     -jar ${JENKINS_FOLDER}/jenkins.war              \
-     ${JENKINS_OPTS}                                 \
-     --httpPort=${PORT1}                             \
-     --webroot=${JENKINS_FOLDER}/war                 \
-     --ajp13Port=-1                                  \
-     --httpListenAddress=127.0.0.1                   \
-     --ajp13ListenAddress=127.0.0.1                  \
-     --prefix=${JENKINS_CONTEXT}
+CMD /usr/local/jenkins/bin/run.sh
