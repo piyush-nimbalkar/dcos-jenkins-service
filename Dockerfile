@@ -34,13 +34,11 @@ RUN curl -fsSL "$LIBMESOS_DOWNLOAD_URL" -o libmesos-bundle.tar.gz  \
 # update to newer git version
 RUN echo "deb http://ftp.debian.org/debian testing main" >> /etc/apt/sources.list \
   && apt-get update && apt-get -t testing install -y git
-RUN mkdir -p "$JENKINS_HOME" "${JENKINS_FOLDER}/war" \
-    && chown -R ${user} /var/log/nginx "$JENKINS_HOME" "${JENKINS_FOLDER}"
+RUN mkdir -p "$JENKINS_HOME" "${JENKINS_FOLDER}/war"
+
 
 # Override the default property for DNS lookup caching
 RUN echo 'networkaddress.cache.ttl=60' >> ${JAVA_HOME}/jre/lib/security/java.security
-
-USER ${user}
 
 # bootstrap scripts and needed dir setup
 COPY scripts/bootstrap.py /usr/local/jenkins/bin/bootstrap.py
@@ -170,6 +168,11 @@ RUN /usr/local/bin/install-plugins.sh       \
 ADD https://infinity-artifacts.s3.amazonaws.com/mesos-jenkins/mesos.hpi-${MESOS_PLUG_HASH} "${JENKINS_STAGING}/plugins/mesos.hpi"
 ADD https://infinity-artifacts.s3.amazonaws.com/prometheus-jenkins/prometheus.hpi-${PROMETHEUS_PLUG_HASH} "${JENKINS_STAGING}/plugins/prometheus.hpi"
 ADD https://infinity-artifacts.s3.amazonaws.com/statsd-jenkins/metrics-graphite.hpi-${STATSD_PLUG_HASH} "${JENKINS_STAGING}/plugins/metrics-graphite.hpi"
+
+RUN chown -R ${user} /var/log/nginx "$JENKINS_HOME" "${JENKINS_FOLDER}" "${JENKINS_STAGING}" \
+    && chown -R ${user} /usr/local/jenkins/bin/
+
+USER ${user}
 
 # disable first-run wizard
 RUN echo 2.0 > /usr/share/jenkins/ref/jenkins.install.UpgradeWizard.state
