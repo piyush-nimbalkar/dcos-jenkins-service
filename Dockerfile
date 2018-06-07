@@ -170,7 +170,8 @@ ADD https://infinity-artifacts.s3.amazonaws.com/prometheus-jenkins/prometheus.hp
 ADD https://infinity-artifacts.s3.amazonaws.com/statsd-jenkins/metrics-graphite.hpi-${STATSD_PLUG_HASH} "${JENKINS_STAGING}/plugins/metrics-graphite.hpi"
 
 RUN chown -R ${user} /var/log/nginx "$JENKINS_HOME" "${JENKINS_FOLDER}" "${JENKINS_STAGING}" \
-    && chown -R ${user} /usr/local/jenkins/bin/
+    && chown -R ${user} /usr/local/jenkins/bin/ \
+    && chmod a+x /usr/local/jenkins/bin/*
 
 USER ${user}
 
