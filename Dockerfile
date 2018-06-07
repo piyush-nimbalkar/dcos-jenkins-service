@@ -1,4 +1,5 @@
-FROM jenkins/jenkins:2.107.2
+FROM jenkins-base:nobody
+#FROM jenkins/jenkins:2.107.2
 WORKDIR /tmp
 
 # Environment variables used throughout this Dockerfile
@@ -17,7 +18,7 @@ ARG JENKINS_STAGING=/usr/share/jenkins/ref/
 ARG MESOS_PLUG_HASH=347c1ac133dc0cb6282a0dde820acd5b4eb21133
 ARG PROMETHEUS_PLUG_HASH=a347bf2c63efe59134c15b8ef83a4a1f627e3b5d
 ARG STATSD_PLUG_HASH=929d4a6cb3d3ce5f1e03af73075b13687d4879c8
-ARG user=jenkins
+ARG user=nobody
 
 # Default policy according to https://wiki.jenkins.io/display/JENKINS/Configuring+Content+Security+Policy
 ENV JENKINS_CSP_OPTS="sandbox; default-src 'none'; img-src 'self'; style-src 'self';"
@@ -169,9 +170,13 @@ ADD https://infinity-artifacts.s3.amazonaws.com/mesos-jenkins/mesos.hpi-${MESOS_
 ADD https://infinity-artifacts.s3.amazonaws.com/prometheus-jenkins/prometheus.hpi-${PROMETHEUS_PLUG_HASH} "${JENKINS_STAGING}/plugins/prometheus.hpi"
 ADD https://infinity-artifacts.s3.amazonaws.com/statsd-jenkins/metrics-graphite.hpi-${STATSD_PLUG_HASH} "${JENKINS_STAGING}/plugins/metrics-graphite.hpi"
 
-RUN chown -R ${user} /var/log/nginx "$JENKINS_HOME" "${JENKINS_FOLDER}" "${JENKINS_STAGING}" \
-    && chown -R ${user} /usr/local/jenkins/bin/ \
-    && chmod a+x /usr/local/jenkins/bin/*
+RUN echo "user: ${user}" \
+    && cat /etc/passwd  \
+    && chown -vR ${user} /var/log/nginx "$JENKINS_HOME" "${JENKINS_FOLDER}" "${JENKINS_STAGING}" \
+    && chown -vR ${user} /usr/local/jenkins/bin/ /var/jenkins_home/ \
+    && chown -vR ${user} /etc/nginx/nginx.conf  /var/lib/nginx/ \
+    && chmod a+x /usr/local/jenkins/bin/*   \
+    && ls -l /var/ && ls -l /var/jenkins_home/
 
 USER ${user}
 
