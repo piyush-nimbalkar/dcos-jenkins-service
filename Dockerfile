@@ -34,7 +34,8 @@ RUN curl -fsSL "$LIBMESOS_DOWNLOAD_URL" -o libmesos-bundle.tar.gz  \
 # update to newer git version
 RUN echo "deb http://ftp.debian.org/debian testing main" >> /etc/apt/sources.list \
   && apt-get update && apt-get -t testing install -y git
-RUN chown -R ${user} /var/log/nginx
+RUN mkdir -p "$JENKINS_HOME" "${JENKINS_FOLDER}/war" \
+    && chown -R ${user} /var/log/nginx "$JENKINS_HOME" "${JENKINS_FOLDER}"
 
 # Override the default property for DNS lookup caching
 RUN echo 'networkaddress.cache.ttl=60' >> ${JAVA_HOME}/jre/lib/security/java.security
@@ -46,8 +47,6 @@ COPY scripts/bootstrap.py /usr/local/jenkins/bin/bootstrap.py
 COPY scripts/export-libssl.sh /usr/local/jenkins/bin/export-libssl.sh
 COPY scripts/dcos-account.sh /usr/local/jenkins/bin/dcos-account.sh
 COPY scripts/run.sh /usr/local/jenkins/bin/run.sh
-RUN chmod +x /usr/local/jenkins/bin/*.sh    \
-    && mkdir -p "$JENKINS_HOME" "${JENKINS_FOLDER}/war"
 
 # nginx setup
 RUN mkdir -p /var/log/nginx/jenkins
