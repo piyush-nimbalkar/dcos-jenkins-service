@@ -36,9 +36,10 @@ RUN echo "deb http://ftp.debian.org/debian testing main" >> /etc/apt/sources.lis
   && apt-get update && apt-get -t testing install -y git
 RUN chown -R ${user} /var/log/nginx
 
-USER ${user}
 # Override the default property for DNS lookup caching
 RUN echo 'networkaddress.cache.ttl=60' >> ${JAVA_HOME}/jre/lib/security/java.security
+
+USER ${user}
 
 # bootstrap scripts and needed dir setup
 COPY scripts/bootstrap.py /usr/local/jenkins/bin/bootstrap.py
