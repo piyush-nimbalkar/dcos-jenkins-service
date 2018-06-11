@@ -179,6 +179,6 @@ USER ${user}
 # disable first-run wizard
 RUN echo 2.0 > /usr/share/jenkins/ref/jenkins.install.UpgradeWizard.state
 
-ENTRYPOINT []
+#ENTRYPOINT []
 
 CMD /usr/local/jenkins/bin/run.sh

@@ -6,7 +6,7 @@ export MESOS_NATIVE_JAVA_LIBRARY=$(ls /libmesos-bundle/lib/libmesos-*.so)
 
 . /usr/local/jenkins/bin/export-libssl.sh
 
-find /usr/share/jenkins/ref/ \( -type f -o -type l \) -exec bash -c '. /usr/local/bin/jenkins-support; for arg; do copy_reference_file "$arg"; done' _ {} +
+#find /usr/share/jenkins/ref/ \( -type f -o -type l \) -exec bash -c '. /usr/local/bin/jenkins-support; for arg; do copy_reference_file "$arg"; done' _ {} +
 
 /usr/local/jenkins/bin/bootstrap.py
 . /usr/local/jenkins/bin/dcos-account.sh
