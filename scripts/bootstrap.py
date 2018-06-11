@@ -140,7 +140,7 @@ def main():
     # change as long as a Jenkins instance is alive, since the rewrite will
     # be based on the app ID in Marathon, as will the volume on disk.
     populate_nginx_config(
-        '/etc/nginx/nginx.conf',
+        '/var/nginx/nginx.conf',
         marathon_nginx_port,
         marathon_jenkins_port,
         jenkins_app_context)

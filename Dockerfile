@@ -18,7 +18,7 @@ ARG JENKINS_STAGING=/usr/share/jenkins/ref/
 ARG MESOS_PLUG_HASH=347c1ac133dc0cb6282a0dde820acd5b4eb21133
 ARG PROMETHEUS_PLUG_HASH=a347bf2c63efe59134c15b8ef83a4a1f627e3b5d
 ARG STATSD_PLUG_HASH=929d4a6cb3d3ce5f1e03af73075b13687d4879c8
-ARG user=nobody
+ARG user=jenkins
 
 # Default policy according to https://wiki.jenkins.io/display/JENKINS/Configuring+Content+Security+Policy
 ENV JENKINS_CSP_OPTS="sandbox; default-src 'none'; img-src 'self'; style-src 'self';"
@@ -48,8 +48,8 @@ COPY scripts/dcos-account.sh /usr/local/jenkins/bin/dcos-account.sh
 COPY scripts/run.sh /usr/local/jenkins/bin/run.sh
 
 # nginx setup
-RUN mkdir -p /var/log/nginx/jenkins
-COPY conf/nginx/nginx.conf /etc/nginx/nginx.conf
+RUN mkdir -p /var/log/nginx/jenkins /var/nginx/
+COPY conf/nginx/nginx.conf /var/nginx/nginx.conf
 
 # jenkins setup
 COPY conf/jenkins/config.xml "${JENKINS_STAGING}/config.xml"
@@ -170,19 +170,16 @@ ADD https://infinity-artifacts.s3.amazonaws.com/mesos-jenkins/mesos.hpi-${MESOS_
 ADD https://infinity-artifacts.s3.amazonaws.com/prometheus-jenkins/prometheus.hpi-${PROMETHEUS_PLUG_HASH} "${JENKINS_STAGING}/plugins/prometheus.hpi"
 ADD https://infinity-artifacts.s3.amazonaws.com/statsd-jenkins/metrics-graphite.hpi-${STATSD_PLUG_HASH} "${JENKINS_STAGING}/plugins/metrics-graphite.hpi"
 
-RUN echo "user: ${user}" \
-    && cat /etc/passwd  \
-    && chown -vR ${user} /var/log/nginx "$JENKINS_HOME" "${JENKINS_FOLDER}" "${JENKINS_STAGING}" \
-    && chown -vR ${user} /usr/local/jenkins/bin/ /var/jenkins_home/ \
-    && chown -vR ${user} /etc/nginx/nginx.conf  /var/lib/nginx/ \
-    && chmod a+x /usr/local/jenkins/bin/*   \
-    && ls -l /var/ && ls -l /var/jenkins_home/
+RUN chown -R ${user} /var/log/nginx "$JENKINS_HOME" "${JENKINS_FOLDER}" "${JENKINS_STAGING}" \
+    && chown -R ${user} /usr/local/jenkins/bin/ /var/jenkins_home/ \
+    && chown -R ${user} /var/lib/nginx/ /var/nginx/ \
+    && chmod a+x /usr/local/jenkins/bin/*
 
 USER ${user}
 
 # disable first-run wizard
 RUN echo 2.0 > /usr/share/jenkins/ref/jenkins.install.UpgradeWizard.state
 
-ENTRYPOINT []
+#ENTRYPOINT []
 
 CMD /usr/local/jenkins/bin/run.sh
